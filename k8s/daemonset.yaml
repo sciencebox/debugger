@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: debugger
+  labels:
+    app: debugger
+spec:
+  selector:
+    matchLabels:
+      app: debugger
+  template:
+    metadata:
+      labels:
+        app: debugger
+    spec:
+      terminationGracePeriodSeconds: 5
+      hostIPC: true
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        # Add here the labels used for node selection
+        # nodeApp: debugger
+      containers:
+        - name: debugger
+          image: gitlab-registry.cern.ch/sciencebox/docker-images/debugger
+          imagePullPolicy: Always
+          command: ["/bin/sleep"]
+          args: ["infinity"]
+          securityContext:
+            privileged: true
+            allowPrivilegeEscalation: true
+          volumeMounts:
+            - name: root
+              mountPath: /host_root
+      volumes:
+        - name: root
+          hostPath:
+            path: "/"
+            type: Directory
